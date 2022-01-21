@@ -1,0 +1,16 @@
+<h1>{{title}}</h1>
+
+<form method='POST'>
+  <input
+    id='input-wishList-item'
+    type='text'
+    name='wishListItem'
+    autofocus='on'
+    placeholder='e.g. ice skating groupon'
+  />
+  <button>Add Item</button>
+</form>
+
+{{#each wishListItem}}
+  <a href='/wishlist-item-thread'>{{item}}</a>
+{{/each}}

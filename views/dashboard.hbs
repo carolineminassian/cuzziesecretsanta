@@ -1,0 +1,29 @@
+<h1>{{title}}</h1>
+
+<h3>Input Wish List Name</h3>
+<form method='POST'>
+  <input
+    id='input-wishList'
+    type='text'
+    name='listName'
+    autofocus='on'
+    placeholder='e.g. Big Ticket Items'
+  />
+  <button>Add Wish List</button>
+</form>
+
+{{#each wishList}}
+  <a href='/wishlist-items/{{this.id}}'>{{listName}}</a>
+{{/each}}
+
+<h3>Search for Friends</h3>
+<form method='POST'>
+  <input
+    id='input-wishList'
+    type='text'
+    name='new'
+    autofocus='on'
+    placeholder='e.g. Big Ticket Items'
+  />
+  <button>Add Wish List</button>
+</form>
