@@ -6,6 +6,7 @@ const User = require('../models/user');
 const FriendList = require('../models/friendList');
 const WishList = require('../models/wishList');
 const WishListItem = require('../models/wishListItem');
+const GiftsPurchased = require('../models/giftsPurchased');
 const QuestionsAsked = require('../models/questionsAsked');
 const routeGuard = require('./../middleware/route-guard');
 
@@ -129,6 +130,7 @@ router.post('/', routeGuard, (req, res, next) => {
 // display friend's profile with wish list, gift list, question board
 router.get('/friend/:id', routeGuard, (req, res, next) => {
   const id = req.params.id;
+  let wishList;
   let male = false;
   let user;
   if (id !== String(req.user._id)) {
@@ -142,8 +144,12 @@ router.get('/friend/:id', routeGuard, (req, res, next) => {
       .then(() => {
         return WishList.find({ wishListCreator: id });
       })
-      .then((wishList) => {
-        res.render('friend-page', { user, male, wishList });
+      .then((list) => {
+        wishList = list;
+        return GiftsPurchased.find({ recipient: id });
+      })
+      .then((giftsPurchased) => {
+        res.render('friend-page', { user, male, wishList, giftsPurchased });
       })
       .catch((error) => {
         next(error);
@@ -151,6 +157,36 @@ router.get('/friend/:id', routeGuard, (req, res, next) => {
   } else {
     throw new Error('NOT_AUTHORIZED');
   }
+});
+
+// add gift purchased to friend's page
+router.post('/friend/:id', routeGuard, (req, res, next) => {
+  const id = req.params.id;
+  const { giftPurchased } = req.body;
+  let recipient;
+  User.findById(id).then((friend) => {
+    recipient = friend;
+  });
+  return GiftsPurchased.findOne({ recipient: id, gift: giftPurchased })
+    .then((giftFound) => {
+      if (giftFound) {
+        console.log('gift already exists!!', giftFound, giftPurchased);
+        throw new Error('GIFT_ALREADY_EXISTS');
+      } else {
+        console.log('gift does not exist!');
+        GiftsPurchased.create({
+          purchaser: req.user._id,
+          recipient,
+          gift: giftPurchased
+        });
+      }
+    })
+    .then(() => {
+      res.redirect(`/friend/${id}`);
+    })
+    .catch((error) => {
+      next(error);
+    });
 });
 
 // display friend's wish list detail

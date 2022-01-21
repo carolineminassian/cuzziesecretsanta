@@ -37,3 +37,21 @@
 <h3>General Question Board</h3>
 
 <h3>Gifts Already Purchased</h3>
+{{#each giftsPurchased}}
+  <ul>
+    <li>
+      {{gift}}
+    </li>
+  </ul>
+{{/each}}
+
+<form method='POST'>
+  <input
+    id='input-gift-purchased'
+    type='text'
+    name='giftPurchased'
+    autofocus='on'
+    placeholder='e.g. poo pourri'
+  />
+  <button>Add to Purchased List</button>
+</form>
