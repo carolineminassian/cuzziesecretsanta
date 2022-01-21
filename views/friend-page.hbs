@@ -1,2 +1,39 @@
-<h1>{{title}}</h1>
-<p>Welcome to {{title}}</p>
+<h2>Welcome to {{user.name}}'s page!</h2>
+<div class='friend-page-intro'>
+  <p><i>
+      Here you'll be able to:
+      <ul>
+        <li>
+          check out
+          {{user.name}}'s wish lists
+        </li>
+        <li>
+          ask
+          {{user.name}}
+          questions anonymously (generally or on specific wish list items)
+        </li>
+        <li>
+          post the gift that you've purchased without
+          {{user.name}}
+          ever knowing what
+          {{#if male}} he'll {{else}} she'll {{/if}}
+          be receiving, AND without your other cuzzies knowing who purchased
+          that gift!
+        </li>
+      </ul></i></p>
+</div>
+
+<h3>
+  Wish Lists
+</h3>
+{{#each wishList}}
+  <ul>
+    <li>
+      <a href='/friend-wishlist-detail/{{this.id}}'>{{listName}}</a>
+    </li>
+  </ul>
+{{/each}}
+
+<h3>General Question Board</h3>
+
+<h3>Gifts Already Purchased</h3>

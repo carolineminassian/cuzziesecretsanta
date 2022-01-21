@@ -1,0 +1,33 @@
+<h1>Look who's in the house! </h1>
+
+<h3>Search for More Friends</h3>
+<form method='GET'>
+  <input
+    id='input-friend-search'
+    type='text'
+    name='name'
+    autofocus='on'
+    placeholder='Search for a new friend'
+  />
+  <button>Search</button>
+</form>
+
+{{#if noInput}}{{else}}
+  {{#each userSearchResults}}
+    {{! <ul>
+      <li> }}
+    <h1>
+      <a href='/friend/{{id}}'>{{name}}</a>
+
+    </h1>
+    {{#if profilePic}}
+      <img
+        src='{{profilePic}}'
+        alt='friend-prof-pic'
+        style='max-width: 100px'
+      />
+    {{/if}}
+    {{! </li>
+    </ul> }}
+  {{/each}}
+{{/if}}

@@ -19,6 +19,10 @@ const schema = new mongoose.Schema({
   profilePic: {
     type: String
   },
+  gender: {
+    type: String,
+    required: true
+  },
   wishList: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'WishList'

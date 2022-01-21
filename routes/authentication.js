@@ -12,19 +12,20 @@ router.get('/sign-up', (req, res, next) => {
 });
 
 router.post('/sign-up', (req, res, next) => {
-  const { name, email, password } = req.body;
+  const { name, gender, email, password } = req.body;
   bcryptjs
     .hash(password, 10)
     .then((hash) => {
       return User.create({
         name,
+        gender,
         email,
         passwordHashAndSalt: hash
       });
     })
     .then((user) => {
       req.session.userId = user._id;
-      res.redirect('/private');
+      res.redirect('/');
     })
     .catch((error) => {
       next(error);
@@ -50,7 +51,7 @@ router.post('/sign-in', (req, res, next) => {
     .then((result) => {
       if (result) {
         req.session.userId = user._id;
-        res.redirect('/private');
+        res.redirect('/');
       } else {
         return Promise.reject(new Error('Wrong password.'));
       }

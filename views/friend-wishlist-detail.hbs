@@ -1,0 +1,9 @@
+<h1>{{wishList.wishListCreator.name}}'s {{wishList.listName}}</h1>
+
+{{#each wishListItem}}
+  <ul>
+    <li>
+      <a href='/wishlist-item-thread'>{{item}}</a>
+    </li>
+  </ul>
+{{/each}}

@@ -1,9 +1,22 @@
-<form action="/authentication/sign-up" method="POST">
-  <label for="input-name">Name</label>
-  <input type="text" id="input-name" name="name" placeholder="Your Name" />
-  <label for="input-email">Email</label>
-  <input type="email" id="input-email" name="email" placeholder="Your Email" />
-  <label for="input-password">Password</label>
-  <input type="password" name="password" id="input-password" placeholder="A Strong Password" />
+<form action='/authentication/sign-up' method='POST'>
+  <label for='input-name'>Name</label>
+  <input type='text' id='input-name' name='name' placeholder='Your Name' />
+  <div style='text-align: center;'>
+    <label for='input-gender-female'>Female</label>
+    <input type='radio' id='input-gender-female' name='gender' value='female' />
+    <label for='input-gender-male'>Male</label>
+    <input type='radio' id='input-gender-male' name='gender' value='male' />
+    <label for='input-gender-other'>Other</label>
+    <input type='radio' id='input-gender-other' name='gender' value='other' />
+  </div>
+  <label for='input-email'>Email</label>
+  <input type='email' id='input-email' name='email' placeholder='Your Email' />
+  <label for='input-password'>Password</label>
+  <input
+    type='password'
+    name='password'
+    id='input-password'
+    placeholder='A Strong Password'
+  />
   <button>Sign Up</button>
 </form>

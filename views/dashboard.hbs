@@ -13,17 +13,21 @@
 </form>
 
 {{#each wishList}}
-  <a href='/wishlist-items/{{this.id}}'>{{listName}}</a>
+  <ul>
+    <li>
+      <a href='/wishlist-items/{{this.id}}'>{{listName}}</a>
+    </li>
+  </ul>
 {{/each}}
 
 <h3>Search for Friends</h3>
-<form method='POST'>
+<form action='friend-search' method='GET'>
   <input
-    id='input-wishList'
+    id='input-friend-search'
     type='text'
-    name='new'
+    name='name'
     autofocus='on'
-    placeholder='e.g. Big Ticket Items'
+    placeholder='e.g. Loser Cousin'
   />
-  <button>Add Wish List</button>
+  <button>Search</button>
 </form>

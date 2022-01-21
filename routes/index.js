@@ -37,6 +37,8 @@ router.get('/', routeGuard, (req, res, next) => {
       next(error);
     });
 });
+
+// display wish list items
 router.get('/wishlist-items/:id', routeGuard, (req, res, next) => {
   const { id } = req.params;
   let wishList;
@@ -59,6 +61,7 @@ router.get('/wishlist-items/:id', routeGuard, (req, res, next) => {
     });
 });
 
+// add wish list item
 router.post('/wishlist-items/:id', routeGuard, (req, res, next) => {
   const { id } = req.params;
   const { wishListItem } = req.body;
@@ -66,15 +69,19 @@ router.post('/wishlist-items/:id', routeGuard, (req, res, next) => {
     .then((list) => {
       if (list) {
         console.log('list exists!!');
-        return WishListItem.create({
-          item: wishListItem,
-          creator: req.user._id,
-          wishList: list
-        }).then((itemDoc) => {
-          return WishList.findByIdAndUpdate(id, {
-            wishListItem: itemDoc
+        if (String(req.user._id) === String(list.wishListCreator)) {
+          return WishListItem.create({
+            item: wishListItem,
+            creator: req.user._id,
+            wishList: list
+          }).then((itemDoc) => {
+            return WishList.findByIdAndUpdate(id, {
+              wishListItem: itemDoc
+            });
           });
-        });
+        } else {
+          throw new Error('NOT_AUTHORIZED_TO_ADD_ITEM');
+        }
       }
     })
     .then(() => {
@@ -111,16 +118,92 @@ router.post('/', routeGuard, (req, res, next) => {
     });
 });
 
+// delete a wish list
+
+// edit wish list name
+
+// delete wish list item
+
+// edit wish list item
+
 // display friend's profile with wish list, gift list, question board
 router.get('/friend/:id', routeGuard, (req, res, next) => {
   const id = req.params.id;
+  let male = false;
+  let user;
   if (id !== String(req.user._id)) {
-    FriendList.findOne({ friendListOwner: req.user._id });
-    res.render('friend-page', { friend: '' });
+    return User.findById(id)
+      .then((doc) => {
+        user = doc;
+        if (doc.gender === 'male') {
+          male = true;
+        }
+      })
+      .then(() => {
+        return WishList.find({ wishListCreator: id });
+      })
+      .then((wishList) => {
+        res.render('friend-page', { user, male, wishList });
+      })
+      .catch((error) => {
+        next(error);
+      });
   } else {
-    throw new Error(NOT_AUTHORIZED);
+    throw new Error('NOT_AUTHORIZED');
   }
 });
+
+// display friend's wish list detail
+router.get('/friend-wishlist-detail/:id', routeGuard, (req, res, next) => {
+  const { id } = req.params;
+  let wishList;
+  let wishListItem;
+  return WishList.findById(id)
+    .populate('wishListCreator')
+    .then((doc) => {
+      wishList = doc;
+      return WishListItem.find({
+        creator: wishList.wishListCreator,
+        wishList
+      });
+    })
+    .then((item) => {
+      wishListItem = item;
+      res.render('friend-wishlist-detail', {
+        title: "Cuzzie's Secret Santa!",
+        wishListItem,
+        wishList
+      });
+    })
+    .catch((error) => {
+      next(error);
+    });
+});
+
+// search for a friend
+router.get('/friend-search', routeGuard, (req, res, next) => {
+  const name = req.query.name;
+  let noInput;
+  return User.find({ name })
+    .then((userSearchResults) => {
+      if (!name) {
+        noInput = true;
+      } else {
+        res.render('friend-search-results', {
+          userSearchResults,
+          noInput,
+          searchUser: true
+        });
+      }
+    })
+    .catch((error) => {
+      next(error);
+    });
+});
+
+// add someone as a friend
+
+// remove a friend
 
 // add item to gifts purchased on friend's profile
 
