@@ -421,7 +421,7 @@ router.get('/friend-wishlist-detail/:id', routeGuard, (req, res, next) => {
 router.get('/friend-search', routeGuard, (req, res, next) => {
   const name = req.query.name;
   let noInput;
-  return User.find({ name })
+  return User.find({ name: { $regex: name, $options: 'i' } })
     .then((userSearchResults) => {
       if (!name) {
         noInput = true;
