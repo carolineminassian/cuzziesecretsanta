@@ -1,0 +1,35 @@
+<h1>My Archives</h1>
+
+<h3>
+  Archived Lists
+</h3>
+{{#each archivedWishList}}
+  <ul>
+    <li>
+      <a href='/archives/wishlist-items/{{this.id}}'>{{listName}}</a>
+      <form action='/wishlist/{{this.id}}/delete' method='POST'>
+        <button class='btn btn-outline-danger mb-2'>Permanently Delete</button>
+      </form>
+    </li>
+  </ul>
+{{/each}}
+
+<h3>
+  Items Archived Alone
+</h3>
+{{#each itemsArchivedAlone}}
+  <ul>
+    <li>
+      <a href='/archives/wishlist-item-thread'>{{item}}</a>
+      {{#if wishList.listName}}
+        <br />
+        <i>original list:
+          {{wishList.listName}}</i>
+      {{/if}}
+
+      <form action='/wishlist-items/{{this.id}}/delete' method='POST'>
+        <button class='btn btn-outline-danger mb-2'>Permanently Delete</button>
+      </form>
+    </li>
+  </ul>
+{{/each}}

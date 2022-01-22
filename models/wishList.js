@@ -20,6 +20,11 @@ const schema = new mongoose.Schema({
     // required: true,
     // default: null,
     ref: 'WishListItem'
+  },
+  archivedList: {
+    type: Boolean,
+    // default: false,
+    required: true
   }
 });
 

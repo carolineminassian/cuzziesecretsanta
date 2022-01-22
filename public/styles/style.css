@@ -21,18 +21,18 @@ nav {
 }
 
 nav a,
-nav button {
+nav .btn-nav {
   padding: 1em 0;
   border: 0;
 }
 
 nav a:not(:last-child),
-nav button:not(:last-child) {
+nav .btn-nav:not(:last-child) {
   margin-right: 1em;
 }
 
 nav a:first-child,
-nav button:first-child {
+nav .btn-nav:first-child {
   margin-right: auto;
 }
 
@@ -66,8 +66,7 @@ input:not([type='radio']),
 input:not([type='range']),
 textarea,
 select,
-button,
-.btn {
+.btn-submit {
   padding: 1em;
   border: 1px solid #e6e6e6;
   border-radius: 0;

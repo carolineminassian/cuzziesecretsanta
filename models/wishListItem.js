@@ -18,10 +18,19 @@ const schema = new mongoose.Schema({
   purchaseLink: {
     type: String
   },
+  additionalDetails: {
+    type: String,
+    maxlength: 150
+  },
   wishList: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
     ref: 'WishList'
+  },
+  archivedItem: {
+    type: Boolean,
+    // default: false,
+    required: true
   }
 });
 

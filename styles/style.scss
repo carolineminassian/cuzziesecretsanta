@@ -26,7 +26,8 @@ a {
 nav {
   display: flex;
   a,
-  button {
+  // button,
+  .btn-nav {
     padding: 1em 0;
     border: 0;
     &:not(:last-child) {
@@ -64,8 +65,9 @@ input:not([type='radio']),
 input:not([type='range']),
 textarea,
 select,
-button,
-.btn {
+// button,
+// .btn,
+.btn-submit {
   padding: 1em;
   border: 1px solid $grey;
   border-radius: 0;

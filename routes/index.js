@@ -10,18 +10,23 @@ const GiftsPurchased = require('../models/giftsPurchased');
 const QuestionsAsked = require('../models/questionsAsked');
 const routeGuard = require('./../middleware/route-guard');
 
+// display home page with secret santa rules
+router.get('/home', routeGuard, (req, res, next) => {
+  res.render('home');
+});
+
 // display dashboard with editable wish list, friend list, question board
-router.get('/', routeGuard, (req, res, next) => {
+router.get('/dashboard', routeGuard, (req, res, next) => {
   let wishList;
-  let wishListItem;
-  return WishList.find({ wishListCreator: req.user._id })
+  // let wishListItem;
+  return WishList.find({ wishListCreator: req.user._id, archivedList: false })
     .then((doc) => {
       wishList = doc;
       console.log('wishlist item is', wishList);
-      return WishListItem.find({ creator: req.user._id, wishList });
+      // return WishListItem.find({ creator: req.user._id, wishList });
     })
     .then((item) => {
-      wishListItem = item;
+      // wishListItem = item;
       return FriendList.find({ friendListOwner: req.user._id }).populate(
         'friendsOnList'
       );
@@ -30,8 +35,8 @@ router.get('/', routeGuard, (req, res, next) => {
       res.render('dashboard', {
         title: "Cuzzie's Secret Santa!",
         friendList,
-        wishList,
-        wishListItem
+        // wishListItem,
+        wishList
       });
     })
     .catch((error) => {
@@ -39,22 +44,65 @@ router.get('/', routeGuard, (req, res, next) => {
     });
 });
 
+// display landing page for unauthenticated users
+router.get('/', (req, res, next) => {
+  res.render('landing');
+});
+
 // display wish list items
 router.get('/wishlist-items/:id', routeGuard, (req, res, next) => {
   const { id } = req.params;
   let wishList;
   let wishListItem;
+  const notArchived = true;
   return WishList.findById(id)
     .then((doc) => {
       wishList = doc;
       console.log('wishlist item is', wishList);
-      return WishListItem.find({ creator: req.user._id, wishList });
+      return WishListItem.find({
+        creator: req.user._id,
+        wishList,
+        archivedItem: false
+      });
+    })
+    .then((item) => {
+      wishListItem = item;
+      if (wishList.archivedList) {
+        throw new Error('LIST_ARCHIVED');
+      } else {
+        res.render('wishlist-items', {
+          title: wishList.listName,
+          wishListItem,
+          notArchived
+        });
+      }
+    })
+    .catch((error) => {
+      next(error);
+    });
+});
+// display archived wish list items
+router.get('/archives/wishlist-items/:id', routeGuard, (req, res, next) => {
+  const { id } = req.params;
+  let wishList;
+  let wishListItem;
+  const notArchived = false;
+  return WishList.findById(id)
+    .then((doc) => {
+      wishList = doc;
+      console.log('wishlist item is', wishList);
+      return WishListItem.find({
+        creator: req.user._id,
+        wishList,
+        archivedItem: true
+      });
     })
     .then((item) => {
       wishListItem = item;
       res.render('wishlist-items', {
-        title: "Cuzzie's Secret Santa!",
-        wishListItem
+        title: wishList.listName,
+        wishListItem,
+        notArchived
       });
     })
     .catch((error) => {
@@ -74,6 +122,7 @@ router.post('/wishlist-items/:id', routeGuard, (req, res, next) => {
           return WishListItem.create({
             item: wishListItem,
             creator: req.user._id,
+            archivedItem: false,
             wishList: list
           }).then((itemDoc) => {
             return WishList.findByIdAndUpdate(id, {
@@ -93,8 +142,43 @@ router.post('/wishlist-items/:id', routeGuard, (req, res, next) => {
     });
 });
 
+// to delete wish list item
+router.post('/wishlist-items/:itemId/delete', routeGuard, (req, res, next) => {
+  const { itemId } = req.params;
+  let listId;
+  WishListItem.findById(itemId)
+    .populate('wishList')
+    .then((item) => {
+      if (item) {
+        if (
+          item.archivedItem &&
+          !item.wishList &&
+          String(req.user._id) === String(item.creator)
+        ) {
+          WishListItem.findByIdAndDelete(itemId).then(() => {
+            res.redirect(`/archives/${req.user._id}`);
+          });
+        } else {
+          listId = item.wishList.id;
+          console.log('item exists!!');
+          if (String(req.user._id) === String(item.creator)) {
+            WishListItem.findByIdAndDelete(itemId).then(() => {
+              res.redirect(`/wishlist-items/${listId}`);
+            });
+          } else {
+            throw new Error('NOT_AUTHORIZED_TO_DELETE_ITEM');
+          }
+        }
+      }
+    })
+
+    .catch((error) => {
+      next(error);
+    });
+});
+
 // add new wish list
-router.post('/', routeGuard, (req, res, next) => {
+router.post('/dashboard', routeGuard, (req, res, next) => {
   const id = req.user._id;
   const { listName } = req.body;
   WishList.findOne({ wishListCreator: id, listName })
@@ -107,12 +191,13 @@ router.post('/', routeGuard, (req, res, next) => {
         WishList.create({
           wishListCreator: id,
           wishListItem: null,
+          archivedList: false,
           listName
         });
       }
     })
     .then(() => {
-      res.redirect('/');
+      res.redirect('/dashboard');
     })
     .catch((error) => {
       next(error);
@@ -120,10 +205,126 @@ router.post('/', routeGuard, (req, res, next) => {
 });
 
 // delete a wish list
+router.post('/wishlist/:listId/delete', routeGuard, (req, res, next) => {
+  const { listId } = req.params;
+  WishList.findById(listId)
+    .then((list) => {
+      if (list) {
+        console.log('list exists!!');
+        if (
+          String(req.user._id) === String(list.wishListCreator) &&
+          !list.archivedList
+        ) {
+          WishList.findByIdAndDelete(listId).then(() => {
+            res.redirect('/dashboard');
+          });
+        } else if (
+          String(req.user._id) === String(list.wishListCreator) &&
+          list.archivedList
+        ) {
+          WishList.findByIdAndDelete(listId).then(() => {
+            res.redirect(`/archives/${req.user._id}`);
+          });
+        } else {
+          throw new Error('NOT_AUTHORIZED_TO_DELETE_LIST');
+        }
+      }
+    })
+
+    .catch((error) => {
+      next(error);
+    });
+});
+
+// display archives
+router.get('/archives/:userId', routeGuard, (req, res, next) => {
+  const { userId } = req.params;
+  let archivedWishList;
+  const itemsArchivedAlone = [];
+  if (userId === String(req.user._id)) {
+    return WishList.find({ archivedList: true })
+      .then((doc) => {
+        archivedWishList = doc;
+        return WishListItem.find({ archivedItem: true }).populate('wishList');
+      })
+      .then((archivedWishListItems) => {
+        // console.log(
+        //   'archived items:',
+        //   archivedWishListItems,
+        //   'archived lists:',
+        //   archivedWishList
+        // );
+        for (let i = 0; i < archivedWishListItems.length; i++) {
+          if (!archivedWishListItems[i].wishList) {
+            itemsArchivedAlone.push(archivedWishListItems[i]);
+          } else if (!archivedWishListItems[i].wishList.archivedList) {
+            itemsArchivedAlone.push(archivedWishListItems[i]);
+          }
+        }
+
+        res.render('archives', { archivedWishList, itemsArchivedAlone });
+      })
+      .catch((error) => {
+        next(error);
+      });
+  } else {
+    throw new Error('UNAUTHORIZED_USER');
+  }
+});
+
+// archive wish list
+router.post('/wishlist/:listId/archive', routeGuard, (req, res, next) => {
+  const { listId } = req.params;
+  return WishList.findById(listId)
+    .then((list) => {
+      if (list) {
+        console.log('list exists!!');
+        if (String(req.user._id) === String(list.wishListCreator)) {
+          return WishList.findByIdAndUpdate(listId, { archivedList: true });
+        } else {
+          throw new Error('NOT_AUTHORIZED_TO_ARCHIVE_LIST');
+        }
+      }
+    })
+    .then((wishList) => {
+      return WishListItem.updateMany(
+        { wishList, archivedItem: false },
+        { archivedItem: true }
+      );
+    })
+    .then(() => {
+      res.redirect('/dashboard');
+    })
+    .catch((error) => {
+      next(error);
+    });
+});
+
+// archive item
+router.post('/wishlist-items/:itemId/archive', routeGuard, (req, res, next) => {
+  const { itemId } = req.params;
+  let listId;
+  return WishListItem.findById(itemId)
+    .then((item) => {
+      if (item) {
+        console.log('list exists!!');
+        listId = item.wishList._id;
+        if (String(req.user._id) === String(item.creator)) {
+          return WishListItem.findByIdAndUpdate(itemId, { archivedItem: true });
+        } else {
+          throw new Error('NOT_AUTHORIZED_TO_ARCHIVE_ITEM');
+        }
+      }
+    })
+    .then(() => {
+      res.redirect(`/wishlist-items/${listId}`);
+    })
+    .catch((error) => {
+      next(error);
+    });
+});
 
 // edit wish list name
-
-// delete wish list item
 
 // edit wish list item
 

@@ -1,4 +1,4 @@
-<h1>{{title}}</h1>
+<h1>My Dashboard</h1>
 
 <h3>Input Wish List Name</h3>
 <form method='POST'>
@@ -9,13 +9,19 @@
     autofocus='on'
     placeholder='e.g. Big Ticket Items'
   />
-  <button>Add Wish List</button>
+  <button class='btn-submit'>Add Wish List</button>
 </form>
 
 {{#each wishList}}
   <ul>
     <li>
       <a href='/wishlist-items/{{this.id}}'>{{listName}}</a>
+      <form action='/wishlist/{{this.id}}/delete' method='POST'>
+        <button class='btn btn-outline-danger mb-2'>Delete List</button>
+      </form>
+      <form action='/wishlist/{{this.id}}/archive' method='POST'>
+        <button class='btn mb-2'>Archive List</button>
+      </form>
     </li>
   </ul>
 {{/each}}
@@ -29,5 +35,5 @@
     autofocus='on'
     placeholder='e.g. Loser Cousin'
   />
-  <button>Search</button>
+  <button class='btn-submit'>Search</button>
 </form>

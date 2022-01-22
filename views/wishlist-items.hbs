@@ -1,20 +1,37 @@
 <h1>{{title}}</h1>
 
-<form method='POST'>
-  <input
-    id='input-wishList-item'
-    type='text'
-    name='wishListItem'
-    autofocus='on'
-    placeholder='e.g. ice skating groupon'
-  />
-  <button>Add Item to Wish List</button>
-</form>
+{{#if notArchived}}
+  <form method='POST'>
+    <input
+      id='input-wishList-item'
+      type='text'
+      name='wishListItem'
+      autofocus='on'
+      placeholder='e.g. ice skating groupon'
+    />
+    <button class='btn-submit'>Add Item to Wish List</button>
+  </form>
 
-{{#each wishListItem}}
-  <ul>
-    <li>
-      <a href='/wishlist-item-thread'>{{item}}</a>
-    </li>
-  </ul>
-{{/each}}
+  {{#each wishListItem}}
+    <ul>
+      <li>
+        <a href='/wishlist-item-thread'>{{item}}</a>
+        <form action='/wishlist-items/{{this.id}}/delete' method='POST'>
+          <button class='btn btn-outline-danger mb-2'>Delete Item</button>
+        </form>
+        <form action='/wishlist-items/{{this.id}}/archive' method='POST'>
+          <button class='btn mb-2'>Archive Item</button>
+        </form>
+      </li>
+    </ul>
+  {{/each}}
+{{else}}
+
+  {{#each wishListItem}}
+    <ul>
+      <li>
+        <a href='/wishlist-item-thread'>{{item}}</a>
+      </li>
+    </ul>
+  {{/each}}
+{{/if}}
