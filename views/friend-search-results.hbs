@@ -1,33 +1,73 @@
-<h1>Look who's in the house! </h1>
-
-<h3>Search for More Friends</h3>
-<form method='GET'>
-  <input
-    id='input-friend-search'
-    type='text'
-    name='name'
-    autofocus='on'
-    placeholder='Search for a new friend'
-  />
-  <button class='btn-submit'>Search</button>
-</form>
-
-{{#if noInput}}{{else}}
-  {{#each userSearchResults}}
-    {{! <ul>
-      <li> }}
-    <h1>
-      <a href='/friend/{{id}}'>{{name}}</a>
-
-    </h1>
-    {{#if profilePic}}
-      <img
-        src='{{profilePic}}'
-        alt='friend-prof-pic'
-        style='max-width: 100px'
+<h1><strong>
+    <center>
+      Check out who's in the ho ho house
+      <br />
+      for the ho ho holidayz
+    </center>
+  </strong>
+</h1>
+{{#if noInput}}
+  <h4>Try typing in someone's name this time!</h4>
+  <form method='GET'>
+    <input
+      id='input-friend-search'
+      type='text'
+      name='name'
+      autofocus='on'
+      placeholder='Search for a new friend'
+    />
+    <button class='btn-submit'>Search</button>
+  </form>
+{{else}}
+  {{#if userFound}}
+    <h4>
+      If you're unsatisfied with the coolness of the below cuzzies, try
+      searching for someone else here!
+    </h4>
+    <form method='GET'>
+      <input
+        id='input-friend-search'
+        type='text'
+        name='name'
+        autofocus='on'
+        placeholder='Search for a new friend'
       />
-    {{/if}}
-    {{! </li>
-    </ul> }}
-  {{/each}}
+      <button class='btn-submit'>Search</button>
+    </form>
+
+    {{#each userSearchResults}}
+
+      {{#if profilePic}}
+        <img
+          src='{{profilePic}}'
+          alt='friend-prof-pic'
+          style='max-width: 100px'
+        />
+      {{/if}}
+      <h1>
+
+        <a href='/friend/{{id}}'>{{name}}</a>
+      </h1>
+
+      {{#if notFollowingYet}}
+        <form action='/follow-friend/{{id}}' method='POST'>
+
+          <button class='btn-submit'>Follow</button>
+        </form>
+      {{/if}}
+
+    {{/each}}
+  {{else}}
+    <h3>Sorry, didn't find that cuzzie - try looking for someone cooler!</h3>
+    <form method='GET'>
+      <input
+        id='input-friend-search'
+        type='text'
+        name='name'
+        autofocus='on'
+        placeholder='Search for a new friend'
+      />
+      <button class='btn-submit'>Search</button>
+    </form>
+  {{/if}}
 {{/if}}

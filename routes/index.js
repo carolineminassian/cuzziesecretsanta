@@ -420,18 +420,38 @@ router.get('/friend-wishlist-detail/:id', routeGuard, (req, res, next) => {
 // search for a friend
 router.get('/friend-search', routeGuard, (req, res, next) => {
   const name = req.query.name;
+  let userFound;
   let noInput;
   return User.find({ name: { $regex: name, $options: 'i' } })
     .then((userSearchResults) => {
       if (!name) {
         noInput = true;
-      } else {
+        console.log(noInput, userSearchResults);
         res.render('friend-search-results', {
           userSearchResults,
           noInput,
-          searchUser: true
+          userFound: false
         });
       }
+      if (!userSearchResults.length) {
+        console.log(userSearchResults);
+        res.render('friend-search-results', {
+          userSearchResults,
+          noInput,
+          userFound: false
+        });
+      } else {
+        console.log(name, noInput, userSearchResults);
+        for (let i = 0; i < userSearchResults.length; i++) {
+          FriendList.findOne({ friendsOnList: userSearchResults[i] });
+        }
+      }
+      res.render('friend-search-results', {
+        userSearchResults,
+        noInput: false,
+        notFollowingYet: true,
+        userFound: true
+      });
     })
     .catch((error) => {
       next(error);
@@ -439,8 +459,72 @@ router.get('/friend-search', routeGuard, (req, res, next) => {
 });
 
 // add someone as a friend
+router.post('/follow-friend/:friendId', routeGuard, (req, res, next) => {
+  const { friendId } = req.params;
+  const user = req.user._id;
+  let newFriend;
+  return User.findById(friendId)
+    .then((doc) => {
+      newFriend = doc;
+      return User.findById(user).populate('friendList');
+    })
+    .then((follower) => {
+      if (
+        newFriend &&
+        String(newFriend.id) !== String(follower.id) &&
+        !follower.friendList
+      ) {
+        console.log(
+          'follower.friendList does not exist, create new one:',
+          follower.friendList,
+          follower.id
+        );
+        FriendList.create({
+          friendsOnList: newFriend,
+          // friendAvatar,
+          friendListOwner: follower
+        });
+      } else {
+        for (let i = 0; i < follower.friendList.length; i++) {
+          console.log('friend list is:', follower.friendList);
+          if (follower.friendList.friendsOnList[i] !== newFriend) {
+            FriendList.findOneAndUpdate(
+              { friendListOwner: req.user._id },
+              { friendsOnList: newFriend }
+            );
+          }
+        }
+      }
+    })
 
-// remove a friend
+    .then(() => {
+      res.redirect('/dashboard');
+    })
+    .catch((error) => {
+      next(error);
+    });
+});
+
+// unfollow a friend
+router.post('/unfollow-friend/:friendId', routeGuard, (req, res, next) => {
+  const { friendId } = req.params;
+  const user = req.user._id;
+  let unfollowFriend;
+  return User.findById(friendId)
+    .then((doc) => {
+      unfollowFriend = doc;
+      return FriendList.findOneAndDelete(
+        { friendListOwner: req.user._id },
+        { friendsOnList: unfollowFriend }
+      );
+    })
+    .then(() => {
+      res.redirect('/dashboard');
+    })
+    .catch((error) => {
+      next(error);
+    });
+});
 
 // add item to gifts purchased on friend's profile
 

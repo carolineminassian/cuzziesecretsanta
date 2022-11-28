@@ -37,3 +37,20 @@
   />
   <button class='btn-submit'>Search</button>
 </form>
+
+<div>
+  <h3>
+
+    Following
+  </h3>
+  {{#each friendList}}
+    <a href='/friend/{{this.id}}'>
+      {{friendsOnList.name}}
+    </a>
+    <form action='/unfollow-friend/{{id}}' method='POST'>
+
+      <button class='btn-submit'>Unfollow</button>
+    </form>
+  {{/each}}
+
+</div>
