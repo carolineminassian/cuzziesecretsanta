@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./server",
-    "build": "webpack --config webpack.config.js",
+    "build": "node ./server build",
     "dev": "nodemon ./server",
     "dev:debug": "DEBUG=secret-santa* npm run dev",
     "lint": "eslint ."
