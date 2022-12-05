@@ -390,6 +390,38 @@ router.post('/friend/:id', routeGuard, (req, res, next) => {
     });
 });
 
+// to delete gift purchased item
+router.post('/gift-purchased/:id/delete', routeGuard, (req, res, next) => {
+  const giftPurchasedID = req.params.id;
+  const user = req.user._id;
+  console.log(giftPurchasedID);
+  let itemId;
+  GiftsPurchased.findById(giftPurchasedID)
+    // .populate('giftsPurchased')
+    .then((item) => {
+      if (item) {
+        if (String(req.user._id) === String(item.purchaser)) {
+          GiftsPurchased.findByIdAndDelete(giftPurchasedID).then(() => {
+            res.redirect(`/friend/${item.recipient}`);
+          });
+        } else {
+          itemId = item.giftsPurchased.id;
+          console.log('item exists!!', itemId);
+          if (String(req.user._id) === String(item.purchaser)) {
+            GiftsPurchased.findByIdAndDelete(itemId).then(() => {
+              res.redirect(`/friend/${item.recipient}`);
+            });
+          } else {
+            throw new Error('NOT_AUTHORIZED_TO_DELETE_ITEM');
+          }
+        }
+      }
+    })
+
+    .catch((error) => {
+      next(error);
+    });
+});
 // display friend's wish list detail
 router.get('/friend-wishlist-detail/:id', routeGuard, (req, res, next) => {
   const { id } = req.params;

@@ -10,3 +10,14 @@
   />
   <button class='btn-submit'>Add to Purchased List</button>
 </form>
+
+{{#each giftPurchased}}
+  <ul>
+    <li>
+      {{!-- <a href='/wishlist-item-thread'>{{item}}</a> --}}
+      <form action='/gift-purchased/{{this.id}}/delete' method='POST'>
+        <button class='btn btn-outline-danger mb-2'>Delete Item</button>
+      </form>
+    </li>
+  </ul>
+{{/each}}

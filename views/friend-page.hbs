@@ -41,6 +41,9 @@
   <ul>
     <li>
       {{gift}}
+      <form action='/gift-purchased/{{this.id}}/delete' method='POST'>
+        <button class='btn btn-outline-danger mb-2'>Delete Item</button>
+      </form>
     </li>
   </ul>
 {{/each}}
