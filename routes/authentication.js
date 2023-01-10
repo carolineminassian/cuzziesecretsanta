@@ -16,11 +16,17 @@ router.post('/sign-up', (req, res, next) => {
   bcryptjs
     .hash(password, 10)
     .then((hash) => {
-      return User.create({
-        name,
-        gender,
-        email,
-        passwordHashAndSalt: hash
+      User.findOne({ email }).then((existingEmail) => {
+        if (existingEmail) {
+          return Promise.reject(new Error('That email already exists.'));
+        } else {
+          return User.create({
+            name,
+            gender,
+            email,
+            passwordHashAndSalt: hash
+          });
+        }
       });
     })
     .then((user) => {
