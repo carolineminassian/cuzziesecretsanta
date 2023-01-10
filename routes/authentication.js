@@ -25,13 +25,24 @@ router.post('/sign-up', (req, res, next) => {
             gender,
             email,
             passwordHashAndSalt: hash
-          });
+          })
+            .then((user) => {
+              req.session.userId = user._id;
+              res.redirect('/home');
+            })
+            .catch((error) => {
+              next(error);
+            });
         }
       });
     })
-    .then((user) => {
-      req.session.userId = user._id;
-      res.redirect('/home');
+    .then((result) => {
+      if (result) {
+        // req.session.userId = user._id;
+        res.redirect('/home');
+      } else {
+        return Promise.reject(new Error('Email already exists.'));
+      }
     })
     .catch((error) => {
       next(error);
